@@ -10,7 +10,8 @@ enum Direction
     right
 }
 
-public class PlayerController2DPlatformer : MonoBehaviour {
+public class VirtualPlayerController : MonoBehaviour
+{
 
     public float moveSpeed;
     public float jumpHeight;
@@ -20,8 +21,9 @@ public class PlayerController2DPlatformer : MonoBehaviour {
 
     private Dictionary<Direction, EdgeCollider2D> EdgeTriggers = new Dictionary<Direction, EdgeCollider2D>();
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start()
+    {
         PlayerBody = GetComponent<Rigidbody2D>();
         EdgeTriggers[Direction.up] = transform.Find("EdgeTriggers/TopTrigger").gameObject.GetComponent<EdgeCollider2D>();
         EdgeTriggers[Direction.down] = transform.Find("EdgeTriggers/BottomTrigger").gameObject.GetComponent<EdgeCollider2D>();
@@ -29,33 +31,46 @@ public class PlayerController2DPlatformer : MonoBehaviour {
         EdgeTriggers[Direction.right] = transform.Find("EdgeTriggers/RightTrigger").gameObject.GetComponent<EdgeCollider2D>();
     }
 
+    public void HaltHorizontal()
+    {
+        Vector2 velocity = PlayerBody.velocity;
+        velocity.x = 0;
+        PlayerBody.velocity = velocity;
+    }
+
+    public void WalkRight()
+    {
+        Vector2 velocity = PlayerBody.velocity;
+        velocity.x = 0;
+        velocity.x += Vector2.right.x * moveSpeed;
+        PlayerBody.velocity = velocity;
+    }
+
+    public void WalkLeft()
+    {
+        Vector2 velocity = PlayerBody.velocity;
+        velocity.x = 0;
+        velocity.x += Vector2.left.x * moveSpeed;
+        PlayerBody.velocity = velocity;
+    }
+
+    public void Jump()
+    {
+        if (landed)
+        {
+            landed = false;
+            PlayerBody.velocity += Vector2.up * jumpHeight;
+        }
+    }
+
     // Update is called once per frame
-    void Update () {
+    // TODO: Make a collision handler class to do this
+    void Update()
+    {
         print(1 << LayerMask.NameToLayer("Ground"));
         if (EdgeTriggers[Direction.down].IsTouchingLayers(1 << LayerMask.NameToLayer("Ground")))
         {
             landed = true;
         }
-		if (landed && Input.GetKeyDown(KeyCode.Space))
-        {
-            landed = false;
-            PlayerBody.velocity += Vector2.up * jumpHeight;
-        }
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.A))
-        {
-            Vector2 velocity = PlayerBody.velocity;
-            velocity.x = 0;
-            
-            if (Input.GetKey(KeyCode.D))
-            {
-                velocity.x += Vector2.right.x * moveSpeed;
-            }
-            if (Input.GetKey(KeyCode.A))
-            {
-                velocity.x += Vector2.left.x * moveSpeed;
-            }
-            PlayerBody.velocity = velocity;
-        }
-
-	}
+    }
 }
